@@ -14,12 +14,77 @@ private:
 
 	int* GetIntervalPowersFrom(double number) {
 		int startPower = -10, endPower = -9;
-		while (!(number >= pow(2, startPower) && number <= pow(2, endPower))) {
+		while (!(number >= pow(2, startPower) && number < pow(2, endPower))) {
 			startPower++;
 			endPower++;
 		}
 		int* powers = new int[2]{ startPower, endPower };
 		return powers;
+	}
+
+	string convertDoubleToBinary(int number, bool isExp) {
+		string binary_number;
+		while (number >= 1) {
+			if (number % 2 == 0)
+				binary_number += "0";
+			if (number % 2 == 1)
+				binary_number += "1";
+			number /= 2;
+		}
+
+		if (isExp) {
+			while (binary_number.length() < 8) {
+				binary_number.append("0");
+			}
+		}
+		else {
+			while (binary_number.length() < 23) {
+				binary_number.append("0");
+			}
+		}
+
+		return reverse(binary_number);
+	}
+
+public:
+	void convertingToBinary() {
+		float number;
+		float number_bitset;
+		cout << "Введите число: ";
+		cin >> number;
+		number_bitset = number;
+		bool isInteger = (number == (int)number);
+
+		if (isInteger) {
+			int decimal_number = (int)number;
+			cout << "Число в двоичном формате(с помощью bitset)   : " << bitset<32>(decimal_number) << endl;
+			cout << "Число в двоичном формате(собственная функция): " << convertIntToBinary(decimal_number) << endl;
+		}
+		else {
+			string s;
+			int exponent, mantissa;
+
+			s = GetS(number);
+			if (s == "1")
+				number = -number;
+
+			int* powerOfTwo = GetIntervalPowersFrom(number);
+			
+			exponent = powerOfTwo[0] + 127;
+			mantissa = pow(2, 23) * (number - pow(2, powerOfTwo[0])) / (pow(2, powerOfTwo[1]) - pow(2, powerOfTwo[0]));
+			
+			bool isExponent = true;
+			bool isMantissa = false;
+
+			string result = s.append(convertDoubleToBinary(exponent, isExponent)).
+				append(convertDoubleToBinary(mantissa, isMantissa));
+			
+			
+			int* rf = reinterpret_cast<int *>(&number_bitset);
+			cout << "Число в двоичном формате(с помощью bitset)   : " << bitset<32>(*rf) << " (формат IEEE-754)" << endl;
+		
+			cout << "Число в двоичном формате(собственная функция): " << result << " (формат IEEE-754)" << endl;
+		}
 	}
 
 	string convertIntToBinary(int number) {
@@ -92,30 +157,6 @@ private:
 		}
 	}
 
-	string convertDoubleToBinary(int number, bool isExp) {
-		string binary_number;
-		while (number >= 1) {
-			if (number % 2 == 0)
-				binary_number += "0";
-			if (number % 2 == 1)
-				binary_number += "1";
-			number /= 2;
-		}
-
-		if (isExp) {
-			while (binary_number.length() < 8) {
-				binary_number.append("0");
-			}
-		}
-		else {
-			while (binary_number.length() < 23) {
-				binary_number.append("0");
-			}
-		}
-
-		return reverse(binary_number);
-	}
-
 	string reverse(string str) {
 		string result;
 		int length = str.length();
@@ -123,47 +164,6 @@ private:
 			result += str[i];
 		}
 		return result;
-	}
-
-public:
-	void convertingToBinary() {
-		float number;
-		float number_bitset;
-		cout << "Введите число: ";
-		cin >> number;
-		number_bitset = number;
-		bool isInteger = (number == (int)number);
-
-		if (isInteger) {
-			int decimal_number = (int)number;
-			cout << "Число в двоичном формате(с помощью bitset)   : " << bitset<32>(decimal_number) << endl;
-			cout << "Число в двоичном формате(собственная функция): " << convertIntToBinary(decimal_number) << endl;
-		}
-		else {
-			string s;
-			int exponent, mantissa;
-
-			s = GetS(number);
-			if (s == "1")
-				number = -number;
-
-			int* powerOfTwo = GetIntervalPowersFrom(number);
-			
-			exponent = powerOfTwo[0] + 127;
-			mantissa = pow(2, 23) * (number - pow(2, powerOfTwo[0])) / (pow(2, powerOfTwo[1]) - pow(2, powerOfTwo[0]));
-			
-			bool isExponent = true;
-			bool isMantissa = false;
-
-			string result = s.append(convertDoubleToBinary(exponent, isExponent)).
-				append(convertDoubleToBinary(mantissa, isMantissa));
-			
-			
-			int* rf = reinterpret_cast<int *>(&number_bitset);
-			cout << "Число в двоичном формате(с помощью bitset)   : " << bitset<32>(*rf) << " (формат IEEE-754)" << endl;
-		
-			cout << "Число в двоичном формате(собственная функция): " << result << " (формат IEEE-754)" << endl;
-		}
 	}
 };
 
