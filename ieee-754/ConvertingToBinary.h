@@ -47,12 +47,12 @@ private:
 	}
 
 public:
-	void convertingToBinary() {
-		float number;
+	void converting() {
+		double number;
 		float number_bitset;
 		cout << "Введите число: ";
 		cin >> number;
-		number_bitset = number;
+		number_bitset = (float)number;
 		bool isInteger = (number == (int)number);
 
 		if (isInteger) {
@@ -61,24 +61,7 @@ public:
 			cout << "Число в двоичном формате(собственная функция): " << convertIntToBinary(decimal_number) << endl;
 		}
 		else {
-			string s;
-			int exponent, mantissa;
-
-			s = GetS(number);
-			if (s == "1")
-				number = -number;
-
-			int* powerOfTwo = GetIntervalPowersFrom(number);
-			
-			exponent = powerOfTwo[0] + 127;
-			mantissa = pow(2, 23) * (number - pow(2, powerOfTwo[0])) / (pow(2, powerOfTwo[1]) - pow(2, powerOfTwo[0]));
-			
-			bool isExponent = true;
-			bool isMantissa = false;
-
-			string result = s.append(convertDoubleToBinary(exponent, isExponent)).
-				append(convertDoubleToBinary(mantissa, isMantissa));
-			
+			string result = convertToIEEE(number);	
 			
 			int* rf = reinterpret_cast<int *>(&number_bitset);
 			cout << "Число в двоичном формате(с помощью bitset)   : " << bitset<32>(*rf) << " (формат IEEE-754)" << endl;
@@ -105,8 +88,8 @@ public:
 				for (int i = 0; i < difference; i++) {
 					binary_number += "0";
 				}
-				return reverse(binary_number);
 			}
+			return reverse(binary_number);
 		}
 		else {
 			string binary_number;
@@ -121,26 +104,9 @@ public:
 
 			binary_number = reverse(binary_number);
 
-			for (int i = 0; i < binary_number.length(); i++) {
-				if (binary_number[i] == '0')
-					binary_number[i] = '1';
-				else
-					binary_number[i] = '0';
-			}
+			binary_number = makeReverseCodeFrom(binary_number);
 
-			int lastIndex = binary_number.length() - 1;
-
-			if (binary_number[lastIndex] == '0')
-				binary_number[lastIndex] = '1';
-			else {
-				for (int i = lastIndex; i >= 0; i--) {
-					if (binary_number[i] == '0') {
-						binary_number[i] = '1';
-						break;
-					}
-					binary_number[i] = '0';
-				}
-			}
+			binary_number = makeAdditionalCodeFrom(binary_number);
 
 			int numberLength = binary_number.length();
 			if (numberLength <= 32) {
@@ -157,6 +123,29 @@ public:
 		}
 	}
 
+	string convertToIEEE(float number) {
+		string s;
+		int exponent, mantissa;
+
+		s = GetS(number);
+		if (s == "1")
+			number = -number;
+
+		int* powerOfTwo = GetIntervalPowersFrom(number);
+
+		exponent = powerOfTwo[0] + 127;
+		double b = (number - pow(2, powerOfTwo[0])) / (pow(2, powerOfTwo[1]) - pow(2, powerOfTwo[0]));
+		mantissa = pow(2, 23) * (number - pow(2, powerOfTwo[0])) / (pow(2, powerOfTwo[1]) - pow(2, powerOfTwo[0]));
+
+		bool isExponent = true;
+		bool isMantissa = false;
+
+		string result = s.append(convertDoubleToBinary(exponent, isExponent)).
+			append(convertDoubleToBinary(mantissa, isMantissa));
+		
+		return result;
+	}
+
 	string reverse(string str) {
 		string result;
 		int length = str.length();
@@ -164,6 +153,35 @@ public:
 			result += str[i];
 		}
 		return result;
+	}
+	
+	string makeReverseCodeFrom(string code) {
+		int length = code.length();
+		for (int i = 0; i < length; i++) {
+			if (code[i] == '0')
+				code[i] = '1';
+			else
+				code[i] = '0';
+		}
+		return code;
+	}
+
+	string makeAdditionalCodeFrom(string code) {
+		int lastIndex = code.length() - 1;
+
+		if (code[lastIndex] == '0')
+			code[lastIndex] = '1';
+		else {
+			for (int i = lastIndex; i >= 0; i--) {
+				if (code[i] == '0') {
+					code[i] = '1';
+					break;
+				}
+				code[i] = '0';
+			}
+		}
+
+		return code;
 	}
 };
 
